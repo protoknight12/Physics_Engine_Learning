@@ -2,9 +2,7 @@
 #include <random>
 #include "vector2d/vector2d.h"
 using namespace std;
-#define PARTICLE_COUNT 1
-#define GRAVITY 9.81
-#define RIGIDBODY_COUNT 1
+#include "config.h"
 
 
 struct Particle2d {
@@ -142,5 +140,6 @@ void runParticleSim() {
 }
 
 int main() {
+    runParticleSim();
     runRigidbodySim();
 }
