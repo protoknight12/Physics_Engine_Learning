@@ -7,18 +7,6 @@ using namespace std;
 #define RIGIDBODY_COUNT 1
 
 
-
-vector2d negateVector(const vector2d v) {
-    return vector2d{-v.x, -v.y};
-}
-vector2d addVector(const vector2d v1, const vector2d v2) {
-    return vector2d{v1.x + v2.x, v1.y + v2.y};
-}
-vector2d subtractVector(const vector2d v1, const vector2d v2) {
-    return vector2d{v1.x - v2.x, v1.y - v2.y};
-}
-
-
 struct Particle2d {
     vector2d pos;
     vector2d vel;
@@ -52,8 +40,9 @@ void drawParticles() {
 void drawRigidBodies() {
     for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
         RigidBody &rigidBody = rigidBodies[i];
-        cout << "body" << i << " (" << rigidBody.pos.x << ", " << rigidBody.pos.y << ")" << ", " << "angle = " <<rigidBody.
-                angle<< endl;
+        cout << "body" << i << " (" << rigidBody.pos.x << ", " << rigidBody.pos.y << ")" << ", " << "angle = " <<
+                rigidBody.
+                angle << endl;
     }
 }
 
@@ -86,7 +75,7 @@ void initRigidBodies() {
     std::uniform_real_distribution<double> randPos(0, 50);
     std::uniform_real_distribution<double> randAng(0, 2 * M_PI);
     std::uniform_real_distribution<double> randLength(1, 2);
-    for (auto & rigidBody : rigidBodies) {
+    for (auto &rigidBody: rigidBodies) {
         rigidBody.pos = vector2d{randPos(mt), randPos(mt)};
         rigidBody.angle = randAng(mt);
         rigidBody.linearVel = vector2d{0, 0};
