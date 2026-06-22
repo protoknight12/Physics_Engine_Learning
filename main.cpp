@@ -94,12 +94,11 @@ void computeForceAndTorque(RigidBody *rigidBody) {
 }
 
 void runRigidbodySim() {
-    double totalSimTime = 10;
     double totalTimeElapsed = 0;
     double deltaTime = 1;
     initRigidBodies();
     drawRigidBodies();
-    while (totalTimeElapsed < totalSimTime) {
+    while (totalTimeElapsed < TOTAL_SIM_TIME) {
         for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
             RigidBody *rigidBody = &rigidBodies[i];
             computeForceAndTorque(rigidBody);
@@ -120,11 +119,10 @@ void runRigidbodySim() {
 }
 
 void runParticleSim() {
-    double totalSimulationTime = 10; //in seconds
     double totalTimeElapsed = 0;
     initParticles();
     drawParticles();
-    while (totalTimeElapsed < totalSimulationTime) {
+    while (totalTimeElapsed < TOTAL_SIM_TIME) {
         double deltaTime = 1;
         for (auto &particle: particles) {
             vector2d force = computeForce(particle);
