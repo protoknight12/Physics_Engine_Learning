@@ -1,3 +1,4 @@
+#include <float.h>
 #include <iostream>
 #include <random>
 #include "vector2d/vector2d.h"
@@ -25,9 +26,22 @@ struct RigidBody {
     Box2d shape;
 };
 
+struct AABB {
+    //axis-aligned bounding boxes
+    vector2d min; //min is the bottom left part of the bounding box
+    vector2d max; //max is the upper right part of the bounding box
+};
+
+struct Circle {
+    double centerX;
+    double centerY;
+    double radius;
+};
+
 Particle2d particles[PARTICLE_COUNT];
 RigidBody rigidBodies[RIGIDBODY_COUNT];
 
+//PARTICLE METHODS:
 void drawParticles() {
     for (int i = 0; i < PARTICLE_COUNT; ++i) {
         const auto &particle = particles[i];
@@ -35,25 +49,8 @@ void drawParticles() {
     }
 }
 
-void drawRigidBodies() {
-    for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
-        RigidBody &rigidBody = rigidBodies[i];
-        cout << "body" << i << " (" << rigidBody.pos.x << ", " << rigidBody.pos.y << ")" << ", " << "angle = " <<
-                rigidBody.
-                angle << endl;
-    }
-}
-
-
 vector2d computeForce(const Particle2d &particle) {
     return vector2d{0, particle.mass * -GRAVITY};
-}
-
-void calculateBoxIntertia(Box2d *box) {
-    const auto m = box->mass;
-    const auto w = box->width;
-    const auto h = box->height;
-    box->momentOfInertia = m * (pow(w, 2) + pow(h, 2)) / 2;
 }
 
 void initParticles() {
@@ -66,6 +63,44 @@ void initParticles() {
         particle.pos = vector2d{randPos(mt), randPos(mt)};
     }
 }
+
+void runParticleSim() {
+    double totalTimeElapsed = 0;
+    initParticles();
+    drawParticles();
+    while (totalTimeElapsed < TOTAL_SIM_TIME) {
+        double deltaTime = 1;
+        for (auto &particle: particles) {
+            vector2d force = computeForce(particle);
+            auto accel = vector2d{force.x / particle.mass, force.y / particle.mass};
+            particle.vel.x += accel.x * deltaTime;
+            particle.vel.y += accel.y * deltaTime;
+            particle.pos.x += particle.vel.x * deltaTime;
+            particle.pos.y += particle.vel.y * deltaTime;
+        }
+        drawParticles();
+        totalTimeElapsed += deltaTime;
+    }
+}
+
+//RIGIDBODY METHODS
+void drawRigidBodies() {
+    for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
+        RigidBody &rigidBody = rigidBodies[i];
+        cout << "body" << i << " (" << rigidBody.pos.x << ", " << rigidBody.pos.y << ")" << ", " << "angle = " <<
+                rigidBody.
+                angle << endl;
+    }
+}
+
+
+void calculateBoxIntertia(Box2d *box) {
+    const auto m = box->mass;
+    const auto w = box->width;
+    const auto h = box->height;
+    box->momentOfInertia = m * (pow(w, 2) + pow(h, 2)) / 2;
+}
+
 
 void initRigidBodies() {
     std::random_device rd;
@@ -118,26 +153,38 @@ void runRigidbodySim() {
     }
 }
 
-void runParticleSim() {
-    double totalTimeElapsed = 0;
-    initParticles();
-    drawParticles();
-    while (totalTimeElapsed < TOTAL_SIM_TIME) {
-        double deltaTime = 1;
-        for (auto &particle: particles) {
-            vector2d force = computeForce(particle);
-            auto accel = vector2d{force.x / particle.mass, force.y / particle.mass};
-            particle.vel.x += accel.x * deltaTime;
-            particle.vel.y += accel.y * deltaTime;
-            particle.pos.x += particle.vel.x * deltaTime;
-            particle.pos.y += particle.vel.y * deltaTime;
+//BOUNDING BOX METHODS
+bool testAABBIntersection(const AABB *a, const AABB *b) {
+    const double d1x = b->min.x - a->max.x;
+    const double d1y = b->min.y - a->max.y;
+    const double d2x = a->min.x - b->max.x;
+    const double d2y = a->min.y - b->max.y;
+    if (d1x > 0 || d1y > 0) return false;
+    if (d2x > 0 || d2y > 0) return false;
+    return true;
+}
+
+vector2d getSupportPoint(const vector2d *vertices, const int count, const vector2d dir) {
+    double highest = -DBL_MAX;
+    auto support = vector2d{0, 0};
+    for (int i = 0; i < count; ++i) {
+        const vector2d v = vertices[i];
+        if (const double dot = v.x * dir.x + v.y * dir.y; dot > highest) {
+            highest = dot;
+            support = v;
         }
-        drawParticles();
-        totalTimeElapsed += deltaTime;
     }
+    return support;
+}
+
+//CIRCLE METHODS
+bool CirclesCollisionCheck(Circle *A, Circle *B) {
+    double x = A->centerX - B->centerX;
+    double y = A->centerY - B->centerY;
+    double centerDistSquare = pow(x, 2) + pow(y, 2);
+    double radius = A->radius + B->radius;
+    return centerDistSquare <= pow(radius, 2);
 }
 
 int main() {
-    runParticleSim();
-    runRigidbodySim();
 }
