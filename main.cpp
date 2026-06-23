@@ -1,4 +1,4 @@
-#include <float.h>
+#include <cfloat>
 #include <iostream>
 #include <random>
 #include "vector2d/vector2d.h"
