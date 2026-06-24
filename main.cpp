@@ -1,10 +1,32 @@
 #include <cfloat>
 #include <iostream>
 #include <random>
-#include "vector2d/vector2d.h"
 using namespace std;
 #include "config.h"
 
+struct vector2d {
+    double x, y;
+};
+
+vector2d negateVector(const vector2d v) {
+    return vector2d{-v.x, -v.y};
+}
+
+vector2d addVector(const vector2d v1, const vector2d v2) {
+    return vector2d{v1.x + v2.x, v1.y + v2.y};
+}
+
+vector2d subtractVector(const vector2d v1, const vector2d v2) {
+    return vector2d{v1.x - v2.x, v1.y - v2.y};
+}
+
+vector2d scalarMultiplyVector(const vector2d v, const double s) {
+    return vector2d{v.x * s, v.y * s};
+}
+
+double dotProduct(const vector2d v1, const vector2d v2) {
+    return v1.x * v2.x + v1.y * v2.y;
+}
 
 struct Particle2d {
     vector2d pos;
@@ -12,9 +34,12 @@ struct Particle2d {
     double mass; // in kilograms
 };
 
+
 struct Box2d {
     double width, height, mass, momentOfInertia;
 };
+
+
 
 struct RigidBody {
     vector2d pos;
@@ -98,7 +123,7 @@ void calculateBoxIntertia(Box2d *box) {
     const auto m = box->mass;
     const auto w = box->width;
     const auto h = box->height;
-    box->momentOfInertia = m * (pow(w, 2) + pow(h, 2)) / 2;
+    box->momentOfInertia = m * (pow(w, 2) + pow(h, 2)) / 12;
 }
 
 
@@ -116,7 +141,7 @@ void initRigidBodies() {
 
         rigidBody.shape.mass = 10;
         rigidBody.shape.width = 1 + randLength(mt);
-        rigidBody.shape.width = 1 + randLength(mt);
+        rigidBody.shape.height = 1 + randLength(mt);
         calculateBoxIntertia(&rigidBody.shape);
     }
 }
@@ -125,7 +150,7 @@ void computeForceAndTorque(RigidBody *rigidBody) {
     auto force = vector2d{0, 100};
     rigidBody->force = force;
     auto armVector = vector2d{rigidBody->shape.width / 2, rigidBody->shape.height / 2};
-    rigidBody->torque = armVector.x * force.y + armVector.y * force.x;
+    rigidBody->torque = armVector.x * force.y - armVector.y * force.x;
 }
 
 void runRigidbodySim() {
@@ -169,7 +194,7 @@ vector2d getSupportPoint(const vector2d *vertices, const int count, const vector
     auto support = vector2d{0, 0};
     for (int i = 0; i < count; ++i) {
         const vector2d v = vertices[i];
-        if (const double dot = v.x * dir.x + v.y * dir.y; dot > highest) {
+        if (const double dot = dotProduct(v, dir); dot > highest) {
             highest = dot;
             support = v;
         }
