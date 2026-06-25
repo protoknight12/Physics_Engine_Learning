@@ -7,6 +7,5 @@ Currently supports:
 4. Checking for intersections between polygons
 
 TODO:
-1. Constraints support
-2. Make the file structure entirely modular
-3. GUI
+1. Make the file structure entirely modular
+2. GUI
