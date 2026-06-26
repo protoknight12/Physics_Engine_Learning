@@ -22,6 +22,7 @@ vector2d scalarMultiplyVector(const vector2d v, const double s) { return vector2
 double dotProduct(const vector2d v1, const vector2d v2) { return v1.x * v2.x + v1.y * v2.y; }
 vector2d crossScalarVector(double s, const vector2d v) { return vector2d{-s * v.y, s * v.x}; }
 double crossVectors(vector2d v1, vector2d v2) { return v1.x * v2.y - v1.y * v2.x; }
+
 vector2d normalizeVector(vector2d v) {
     double len = sqrt(v.x * v.x + v.y * v.y);
     if (len == 0) return vector2d{0, 0};
@@ -88,8 +89,8 @@ double calculateCircleInertia(double mass, double radius) {
 }
 
 // --- SAT GEOMETRY HELPER FUNCTIONS ---
-void GetBoxVertices(RigidBody* body, vector2d vertices[4]) {
-    BoxCollider* box = static_cast<BoxCollider*>(body->collider);
+void GetBoxVertices(RigidBody *body, vector2d vertices[4]) {
+    BoxCollider *box = static_cast<BoxCollider *>(body->collider);
     double halfW = box->width / 2.0;
     double halfH = box->height / 2.0;
 
@@ -98,9 +99,9 @@ void GetBoxVertices(RigidBody* body, vector2d vertices[4]) {
 
     vector2d localVertices[4] = {
         {-halfW, -halfH},
-        { halfW, -halfH},
-        { halfW,  halfH},
-        {-halfW,  halfH}
+        {halfW, -halfH},
+        {halfW, halfH},
+        {-halfW, halfH}
     };
 
     for (int i = 0; i < 4; ++i) {
@@ -109,7 +110,7 @@ void GetBoxVertices(RigidBody* body, vector2d vertices[4]) {
     }
 }
 
-void ProjectVertices(vector2d vertices[4], vector2d axis, double& minProj, double& maxProj) {
+void ProjectVertices(vector2d vertices[4], vector2d axis, double &minProj, double &maxProj) {
     minProj = dotProduct(vertices[0], axis);
     maxProj = minProj;
     for (int i = 1; i < 4; ++i) {
@@ -121,7 +122,7 @@ void ProjectVertices(vector2d vertices[4], vector2d axis, double& minProj, doubl
 
 // --- ADVANCED NARROW PHASE INTERSECTION (SAT) ---
 
-CollisionManifold BoxVsBox(RigidBody* a, RigidBody* b) {
+CollisionManifold BoxVsBox(RigidBody *a, RigidBody *b) {
     CollisionManifold manifold;
     manifold.collision = false;
     manifold.penetration = DBL_MAX;
@@ -173,15 +174,15 @@ CollisionManifold BoxVsBox(RigidBody* a, RigidBody* b) {
     return manifold;
 }
 
-CollisionManifold CircleVsCircle(RigidBody* a, RigidBody* b) {
+CollisionManifold CircleVsCircle(RigidBody *a, RigidBody *b) {
     CollisionManifold manifold;
     manifold.collision = false;
     manifold.penetration = 0.0;
     manifold.normal = vector2d{0.0, 0.0};
     manifold.contactPoint = vector2d{0.0, 0.0};
 
-    CircleCollider* cA = static_cast<CircleCollider*>(a->collider);
-    CircleCollider* cB = static_cast<CircleCollider*>(b->collider);
+    CircleCollider *cA = static_cast<CircleCollider *>(a->collider);
+    CircleCollider *cB = static_cast<CircleCollider *>(b->collider);
 
     double dx = b->pos.x - a->pos.x;
     double dy = b->pos.y - a->pos.y;
@@ -205,22 +206,22 @@ CollisionManifold CircleVsCircle(RigidBody* a, RigidBody* b) {
     return manifold;
 }
 
-CollisionManifold CircleVsBox(RigidBody* circleBody, RigidBody* boxBody) {
+CollisionManifold CircleVsBox(RigidBody *circleBody, RigidBody *boxBody) {
     CollisionManifold manifold;
     manifold.collision = false;
     manifold.penetration = 0.0;
     manifold.normal = vector2d{0.0, 0.0};
     manifold.contactPoint = vector2d{0.0, 0.0};
 
-    CircleCollider* circle = static_cast<CircleCollider*>(circleBody->collider);
-    BoxCollider* box = static_cast<BoxCollider*>(boxBody->collider);
+    CircleCollider *circle = static_cast<CircleCollider *>(circleBody->collider);
+    BoxCollider *box = static_cast<BoxCollider *>(boxBody->collider);
 
     // 1. Transform the circle position into the local space of the rotated box
     double dx = circleBody->pos.x - boxBody->pos.x;
     double dy = circleBody->pos.y - boxBody->pos.y;
     double cosTheta = cos(-boxBody->angle);
     double sinTheta = sin(-boxBody->angle);
-    vector2d localCircle = { dx * cosTheta - dy * sinTheta, dx * sinTheta + dy * cosTheta };
+    vector2d localCircle = {dx * cosTheta - dy * sinTheta, dx * sinTheta + dy * cosTheta};
 
     double halfW = box->width / 2.0;
     double halfH = box->height / 2.0;
@@ -248,10 +249,10 @@ CollisionManifold CircleVsBox(RigidBody* circleBody, RigidBody* boxBody) {
         localNormal = vector2d{-localDx / distance, -localDy / distance};
     } else {
         // Deep penetration: Circle center is inside the box. Find shallowest axis to escape.
-        double distToLeft   = localCircle.x - (-halfW);
-        double distToRight  = halfW - localCircle.x;
+        double distToLeft = localCircle.x - (-halfW);
+        double distToRight = halfW - localCircle.x;
         double distToBottom = localCircle.y - (-halfH);
-        double distToTop    = halfH - localCircle.y;
+        double distToTop = halfH - localCircle.y;
 
         double minDist = min({distToLeft, distToRight, distToBottom, distToTop});
 
@@ -286,7 +287,7 @@ CollisionManifold CircleVsBox(RigidBody* circleBody, RigidBody* boxBody) {
     return manifold;
 }
 
-CollisionManifold BoxVsCircle(RigidBody* boxBody, RigidBody* circleBody) {
+CollisionManifold BoxVsCircle(RigidBody *boxBody, RigidBody *circleBody) {
     // Treat circle as A and box as B inside the sub-call (returns Circle->Box normal)
     CollisionManifold manifold = CircleVsBox(circleBody, boxBody);
 
@@ -296,11 +297,12 @@ CollisionManifold BoxVsCircle(RigidBody* boxBody, RigidBody* circleBody) {
 }
 
 // --- FUNCTION POINTER DISPATCH TABLE ---
-typedef CollisionManifold (*CollisionHandler)(RigidBody*, RigidBody*);
+typedef CollisionManifold (*CollisionHandler)(RigidBody *, RigidBody *);
+
 CollisionHandler CollisionMatrix[3][3] = {
-    { CircleVsCircle, CircleVsBox,    nullptr },
-    { BoxVsCircle,    BoxVsBox,       nullptr },
-    { nullptr,        nullptr,        nullptr }
+    {CircleVsCircle, CircleVsBox, nullptr},
+    {BoxVsCircle, BoxVsBox, nullptr},
+    {nullptr, nullptr, nullptr}
 };
 
 // --- IMPULSE RESOLUTION ENGINE ---
@@ -346,7 +348,9 @@ void ResolveCollision(RigidBody *bodyA, RigidBody *bodyB, const CollisionManifol
     vB_contact = addVector(bodyB->linearVel, crossScalarVector(bodyB->angularVel, rB));
     relativeVelocity = subtractVector(vB_contact, vA_contact);
 
-    vector2d tangent = subtractVector(relativeVelocity, scalarMultiplyVector(manifold.normal, dotProduct(relativeVelocity, manifold.normal)));
+    vector2d tangent = subtractVector(relativeVelocity,
+                                      scalarMultiplyVector(manifold.normal,
+                                                           dotProduct(relativeVelocity, manifold.normal)));
     double tangentMag = sqrt(dotProduct(tangent, tangent));
 
     if (tangentMag > 0.0001) {
@@ -397,7 +401,7 @@ void initRigidBodies() {
     std::uniform_real_distribution<double> randVel(-100.0, 100.0);
 
     for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
-        RigidBody& body = rigidBodies[i];
+        RigidBody &body = rigidBodies[i];
         body.pos = vector2d{randX(mt), randY(mt)};
         body.angle = randAng(mt);
         body.linearVel = vector2d{randVel(mt), randVel(mt)};
@@ -413,7 +417,7 @@ void initRigidBodies() {
             body.momentOfInertia = calculateBoxInertia(body.mass, width, height);
             body.inverseMomentOfInertia = 1.0 / body.momentOfInertia;
 
-            BoxCollider* box = new BoxCollider();
+            BoxCollider *box = new BoxCollider();
             box->type = ShapeType::BOX;
             box->width = width;
             box->height = height;
@@ -425,7 +429,7 @@ void initRigidBodies() {
             body.momentOfInertia = calculateCircleInertia(body.mass, radius);
             body.inverseMomentOfInertia = 1.0 / body.momentOfInertia;
 
-            CircleCollider* circle = new CircleCollider();
+            CircleCollider *circle = new CircleCollider();
             circle->type = ShapeType::CIRCLE;
             circle->radius = radius;
             circle->friction = 0.2;
@@ -443,7 +447,7 @@ void computeForceAndTorque(RigidBody *rigidBody) {
 
 void ScreenBoundaryConstraints(int width, int height) {
     for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
-        RigidBody& body = rigidBodies[i];
+        RigidBody &body = rigidBodies[i];
         if (!body.collider) continue;
 
         // Create a template for an immovable, infinite-mass boundary environment
@@ -451,18 +455,18 @@ void ScreenBoundaryConstraints(int width, int height) {
         environment.linearVel = vector2d{0.0, 0.0};
         environment.angle = 0.0;
         environment.angularVel = 0.0;
-        environment.inverseMass = 0.0;            // 0 means infinite mass (immovable)
-        environment.inverseMomentOfInertia = 0.0;   // Cannot be rotated by impulses
+        environment.inverseMass = 0.0; // 0 means infinite mass (immovable)
+        environment.inverseMomentOfInertia = 0.0; // Cannot be rotated by impulses
 
         Collider envCollider;
         envCollider.type = ShapeType::BOX;
-        envCollider.friction = 0.5;                // Ground/Wall friction coefficient
-        envCollider.restitution = 0.2;             // Ground/Wall bounciness
+        envCollider.friction = 0.5; // Ground/Wall friction coefficient
+        envCollider.restitution = 0.2; // Ground/Wall bounciness
         environment.collider = &envCollider;
 
         // --- HANDLE CIRCLE BOUNDARIES ---
         if (body.collider->type == ShapeType::CIRCLE) {
-            CircleCollider* circle = static_cast<CircleCollider*>(body.collider);
+            CircleCollider *circle = static_cast<CircleCollider *>(body.collider);
             double radius = circle->radius;
 
             // Ground
@@ -520,8 +524,8 @@ void ScreenBoundaryConstraints(int width, int height) {
 
             for (int j = 1; j < 4; ++j) {
                 if (verts[j].y > deepestFloorVertex.y) deepestFloorVertex = verts[j];
-                if (verts[j].y < deepestCeilVertex.y)  deepestCeilVertex = verts[j];
-                if (verts[j].x < deepestLeftVertex.x)  deepestLeftVertex = verts[j];
+                if (verts[j].y < deepestCeilVertex.y) deepestCeilVertex = verts[j];
+                if (verts[j].x < deepestLeftVertex.x) deepestLeftVertex = verts[j];
                 if (verts[j].x > deepestRightVertex.x) deepestRightVertex = verts[j];
             }
 
@@ -576,26 +580,24 @@ int main() {
     const int screenHeight = 720;
 
     InitWindow(screenWidth, screenHeight, "RigidBody Physics Core (SAT & Iteration Enabled)");
-    SetTargetFPS(60);
+    SetTargetFPS(GetMonitorRefreshRate(0));
 
     initRigidBodies();
 
     const double deltaTime = 0.01666; // Fixed timestep slice
     double accumulator = 0.0;
-    const int impulseIterations = 6;  // Solves chaining issues and eliminates sinking completely
+    const int impulseIterations = 6; // Solves chaining issues and eliminates sinking completely
 
     while (!WindowShouldClose()) {
-
         double frameTime = GetFrameTime();
         if (frameTime > 0.25) frameTime = 0.25;
         accumulator += frameTime;
 
         // --- TICK SUB-STEP TIMESTEP LOOPS ---
         while (accumulator >= deltaTime) {
-
             // Pass 1: Integration & Kinematics Movement Update
             for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
-                RigidBody* body = &rigidBodies[i];
+                RigidBody *body = &rigidBodies[i];
                 computeForceAndTorque(body);
 
                 vector2d linearAccel = scalarMultiplyVector(body->force, body->inverseMass);
@@ -622,8 +624,8 @@ int main() {
             for (int k = 0; k < impulseIterations; ++k) {
                 for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
                     for (int j = i + 1; j < RIGIDBODY_COUNT; ++j) {
-                        RigidBody* bodyA = &rigidBodies[i];
-                        RigidBody* bodyB = &rigidBodies[j];
+                        RigidBody *bodyA = &rigidBodies[i];
+                        RigidBody *bodyB = &rigidBodies[j];
 
                         if (!bodyA->collider || !bodyB->collider) continue;
 
@@ -655,15 +657,15 @@ int main() {
         DrawFPS(screenWidth - 100, 15);
 
         for (int i = 0; i < RIGIDBODY_COUNT; ++i) {
-            RigidBody& body = rigidBodies[i];
+            RigidBody &body = rigidBodies[i];
             if (!body.collider) continue;
 
-            Vector2 raylibPos = { static_cast<float>(body.pos.x), static_cast<float>(body.pos.y) };
+            Vector2 raylibPos = {static_cast<float>(body.pos.x), static_cast<float>(body.pos.y)};
 
             if (body.collider->type == ShapeType::CIRCLE) {
-                CircleCollider* circle = static_cast<CircleCollider*>(body.collider);
+                CircleCollider *circle = static_cast<CircleCollider *>(body.collider);
 
-                DrawCircleV(raylibPos, static_cast<float>(circle->radius), MAROON);
+                DrawCircleV(raylibPos, static_cast<float>(circle->radius), PURPLE);
 
                 // Rotation vector line tracker
                 Vector2 lineEnd = {
@@ -671,18 +673,17 @@ int main() {
                     raylibPos.y + static_cast<float>(sin(body.angle) * circle->radius)
                 };
                 DrawLineV(raylibPos, lineEnd, GOLD);
-            }
-            else if (body.collider->type == ShapeType::BOX) {
-                BoxCollider* box = static_cast<BoxCollider*>(body.collider);
+            } else if (body.collider->type == ShapeType::BOX) {
+                BoxCollider *box = static_cast<BoxCollider *>(body.collider);
 
                 float w = static_cast<float>(box->width);
                 float h = static_cast<float>(box->height);
 
-                Rectangle rect = { raylibPos.x, raylibPos.y, w, h };
-                Vector2 origin = { w / 2.0f, h / 2.0f };
+                Rectangle rect = {raylibPos.x, raylibPos.y, w, h};
+                Vector2 origin = {w / 2.0f, h / 2.0f};
                 float rotationDegrees = static_cast<float>(body.angle * (180.0 / M_PI));
 
-                DrawRectanglePro(rect, origin, rotationDegrees, DARKBLUE);
+                DrawRectanglePro(rect, origin, rotationDegrees, PURPLE);
             }
         }
 
