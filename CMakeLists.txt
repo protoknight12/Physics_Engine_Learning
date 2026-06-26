@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(Physics_Engine
         main.cpp
         config.h
+        vector2d/vector2d.cpp
+        vector2d/vector2d.h
 )
 
 # 2. Tell the compiler where to find <raylib.h>
