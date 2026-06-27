@@ -1,14 +1,36 @@
 #include "vector2d.h"
 #include <cmath>
-vector2d negateVector(const vector2d v) { return vector2d{-v.x, -v.y}; }
-vector2d addVector(const vector2d v1, const vector2d v2) { return vector2d{v1.x + v2.x, v1.y + v2.y}; }
-vector2d subtractVector(const vector2d v1, const vector2d v2) { return vector2d{v1.x - v2.x, v1.y - v2.y}; }
-vector2d scalarMultiplyVector(const vector2d v, const double s) { return vector2d{v.x * s, v.y * s}; }
-double dotProduct(const vector2d v1, const vector2d v2) { return v1.x * v2.x + v1.y * v2.y; }
-vector2d crossScalarVector(double s, const vector2d v) { return vector2d{-s * v.y, s * v.x}; }
-double crossVectors(vector2d v1, vector2d v2) { return v1.x * v2.y - v1.y * v2.x; }
-vector2d normalizeVector(vector2d v) {
-    double len = sqrt(v.x * v.x + v.y * v.y);
-    if (len == 0) return vector2d{0, 0};
-    return vector2d{v.x / len, v.y / len};
+
+vector2d negateVector(const vector2d vector) { return vector2d{-vector.x, -vector.y}; }
+
+vector2d addVector(const vector2d firstVector, const vector2d secondVector) {
+    return vector2d{firstVector.x + secondVector.x, firstVector.y + secondVector.y};
+}
+
+vector2d subtractVector(const vector2d firstVector, const vector2d secondVector) {
+    return vector2d{firstVector.x - secondVector.x, firstVector.y - secondVector.y};
+}
+
+vector2d scalarMultiplyVector(const vector2d vector, const double scalar) {
+    return vector2d{vector.x * scalar, vector.y * scalar};
+}
+
+double dotProduct(const vector2d firstVector, const vector2d secondVector) {
+    return firstVector.x * secondVector.x + firstVector.y * secondVector.y;
+}
+
+vector2d crossScalarVector(const double scalar, const vector2d vector) {
+    return vector2d{-scalar * vector.y, scalar * vector.x};
+}
+
+double crossVectors(const vector2d firstVector, const vector2d secondVector) {
+    return firstVector.x * secondVector.y - firstVector.y * secondVector.x;
+}
+
+vector2d normalizeVector(vector2d vector) {
+    const double length = sqrt(vector.x * vector.x + vector.y * vector.y);
+    if (length == 0) {
+        return vector2d{0, 0};
+    }
+    return vector2d{vector.x / length, vector.y / length};
 }

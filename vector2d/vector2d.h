@@ -1,20 +1,21 @@
 #pragma once
+
 struct vector2d {
     double x, y;
 };
 
-vector2d negateVector(vector2d v);
+vector2d negateVector(vector2d vector);
 
-vector2d addVector(vector2d v1, vector2d v2);
+vector2d addVector(vector2d firstVector, vector2d secondVector);
 
-vector2d subtractVector(vector2d v1, vector2d v2);
+vector2d subtractVector(vector2d firstVector, vector2d secondVector);
 
-vector2d scalarMultiplyVector(vector2d v, double s);
+vector2d scalarMultiplyVector(vector2d vector, double scalar);
 
-double dotProduct(vector2d v1, vector2d v2);
+double dotProduct(vector2d firstVector, vector2d secondVector);
 
-vector2d crossScalarVector(double s, vector2d v);
+vector2d crossScalarVector(double scalar, vector2d vector);
 
-double crossVectors(vector2d v1, vector2d v2);
+double crossVectors(vector2d firstVector, vector2d secondVector);
 
-vector2d normalizeVector(vector2d v);
+vector2d normalizeVector(vector2d vector);
