@@ -27,3 +27,17 @@ const BoxCollider *asBoxCollider(const Collider *collider) {
     }
     return static_cast<const BoxCollider *>(collider);
 }
+
+PolygonCollider *asPolygonCollider(Collider *collider) {
+    if (!collider || collider->type != ShapeType::POLYGON) {
+        return nullptr;
+    }
+    return static_cast<PolygonCollider *>(collider);
+}
+
+const PolygonCollider *asPolygonCollider(const Collider *collider) {
+    if (!collider || collider->type != ShapeType::POLYGON) {
+        return nullptr;
+    }
+    return static_cast<const PolygonCollider *>(collider);
+}

@@ -30,7 +30,7 @@ RigidBody makeBoxBody(const double positionX,
 void registerCollisionTests(int &failureCount) {
     {
         RigidBody firstBody = makeCircleBody(0, 0, 10);
-        RigidBody secondBody = makeCircleBody(15, 0, 10);
+        RigidBody secondBody = makeCircleBody(25, 0, 10);
         const CollisionManifold manifold = circleVsCircle(&firstBody, &secondBody);
         failureCount += runTest("circleVsCircle separated", !manifold.collision);
         delete firstBody.collider;
